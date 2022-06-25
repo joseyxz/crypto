@@ -1,33 +1,28 @@
 package com.crypto.controller;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.crypto.model.Currency;
+import com.crypto.model.Transaction;
 import com.crypto.model.TransactionHistory;
 import com.crypto.model.Wallet;
-import com.crypto.repository.CurrencyRepository;
-import com.crypto.repository.HistoryRepository;
-import com.crypto.repository.WalletRepository;
+import com.crypto.service.CryptoService;
 
 @RestController
 @RequestMapping("/api")
 public class CryptoController {
 	@Autowired
-	HistoryRepository historyRepository;
-	@Autowired
-	WalletRepository walletRepository;
-	@Autowired
-	CurrencyRepository currencyRepository;
+	CryptoService service;
 
     @GetMapping("/")
 	public String index() {
@@ -41,9 +36,9 @@ public class CryptoController {
 	 */
 	@GetMapping("/price/{symbol}")
 	public ResponseEntity<Currency> getPriceBySymbol(@PathVariable("symbol") String symbol) {
-		Optional<Currency> currency = currencyRepository.findBySymbolIgnoreCase(symbol);
-		if (currency.isPresent()) {
-			return new ResponseEntity<>(currency.get(), HttpStatus.OK);
+		Currency currency = service.getPriceBySymbol(symbol);
+		if (currency != null) {
+			return new ResponseEntity<>(currency, HttpStatus.OK);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -56,12 +51,17 @@ public class CryptoController {
 	 */
 	@GetMapping("/price")
 	public ResponseEntity<List<Currency>> getAllPrice() {
-		List<Currency> priceList = new ArrayList<Currency>();
-		currencyRepository.findAll().forEach(priceList::add);
+		List<Currency> priceList = service.getAllPrice();
 		if (priceList.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 		return new ResponseEntity<>(priceList, HttpStatus.OK);
+	}
+
+	@PostMapping("/trade")
+	public ResponseEntity<TransactionHistory> submitTrade(@RequestBody Transaction transaction) {
+		HttpStatus result = service.submitTrade(transaction);
+		return new ResponseEntity<>(null, result);
 	}
 
 	/**
@@ -71,8 +71,7 @@ public class CryptoController {
 	 */
 	@GetMapping("/user/{id}/wallet")
 	public ResponseEntity<List<Wallet>> getWalletBalanceByUserId(@PathVariable("id") long id) {
-		List<Wallet> balanceList = new ArrayList<Wallet>();
-		walletRepository.findByUserId(id).forEach(balanceList::add);
+		List<Wallet> balanceList = service.getWalletBalanceByUserId(id);
 		if (balanceList.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
@@ -86,8 +85,7 @@ public class CryptoController {
 	 */
 	@GetMapping("/user/{id}/history")
 	public ResponseEntity<List<TransactionHistory>> getUserTransactionHistory(@PathVariable("id") long id) {
-		List<TransactionHistory> history = new ArrayList<TransactionHistory>();
-		historyRepository.findByUserIdOrderByTransDateAsc(id).forEach(history::add);
+		List<TransactionHistory> history = service.getUserTransactionHistory(id);
 		if (history.isEmpty()) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}

@@ -4,6 +4,7 @@ import java.util.Date;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -11,13 +12,25 @@ import javax.persistence.Table;
 @Table(name = "TRANSACTION_HISTORY")
 public class TransactionHistory {
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
     private Long userId;
     private Date transDate;
     private String transType;
     private Long currencyId;
     private double amount; 
+
+    public TransactionHistory(){
+
+    }
+
+    public TransactionHistory(Long userId, Date transDate, String transType, Long currencyId, double amount) {
+		this.userId = userId;
+        this.transDate = transDate;
+        this.transType = transType;
+		this.currencyId = currencyId;
+		this.amount = amount;
+	}
 
     public Long getId(){
         return this.id;

@@ -2,6 +2,7 @@ package com.crypto.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
@@ -10,11 +11,21 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Currency {
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
     private String symbol;
     private double bidPrice;
-    private double sellPrice;
+    private double askPrice;
+
+    public Currency(){
+
+    }
+    
+    public Currency(String symbol, double bidPrice, double askPrice){
+        this.symbol = symbol;
+        this.bidPrice = bidPrice;
+        this.askPrice = askPrice;
+    }
 
     public Long getId(){
         return this.id;
@@ -40,11 +51,11 @@ public class Currency {
         this.bidPrice = bidPrice;
     }
 
-    public double getSellPrice(){
-        return this.sellPrice;
+    public double getAskPrice(){
+        return this.askPrice;
     }
 
-    public void setSellPrice(double sellPrice){
-        this.sellPrice = sellPrice;
+    public void setAskPrice(double askPrice){
+        this.askPrice = askPrice;
     }
 }

@@ -2,16 +2,27 @@ package com.crypto.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Entity
 public class Wallet {
     @Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 	private Long userId;
     private Long currencyId;
     private double balance;
+
+    public Wallet(){
+
+    }
+
+    public Wallet(Long userId, Long currencyId, double balance) {
+		this.userId = userId;
+		this.currencyId = currencyId;
+		this.balance = balance;
+	}
 
     public Long getId(){
         return this.id;
